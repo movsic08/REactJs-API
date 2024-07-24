@@ -1,7 +1,16 @@
-import { Children, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function MainLayout({ children }) {
-  const [darkMode, setDarkMode] = useState(false);
+  // Initialize darkMode state based on local storage
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    return savedDarkMode ? JSON.parse(savedDarkMode) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+  }, [darkMode]);
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -14,7 +23,7 @@ export default function MainLayout({ children }) {
             Dark Mode
           </button>
         </nav>
-        <main className=" mx-auto container p-4">{children}</main>
+        <main className="mx-auto container p-4">{children}</main>
       </div>
     </div>
   );
