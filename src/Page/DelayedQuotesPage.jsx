@@ -7,26 +7,35 @@ export default function DelayedQuotesPage() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        "https://livefeed3.chartnexus.com/Dummy/quotes?market_id=0&list=0"
-      );
-      console.log(response.data);
-      setData(response.data);
-      setIsLoading(false);
-    } catch (error) {
-      console.log("Error fetching data: ", error);
-      setIsLoading(false);
-    }
+  const changeTable = (num) => {
+    setIsLoading(true);
+    setTableContent(num);
   };
+  useEffect(() => {
+    // Function to fetch data
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `https://livefeed3.chartnexus.com/Dummy/quotes?market_id=0&list=${tableContent}`
+        );
+        console.log(
+          `      https://livefeed3.chartnexus.com/Dummy/quotes?market_id=0&list=${tableContent}`
+        );
+        console.log(response.data);
+        setData(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("Error fetching data: ", error);
+        setIsLoading(false);
+      }
+    };
+    // Fetch data initially and set up interval
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+
+    // Clear interval on component unmount
+    return () => clearInterval(interval);
+  }, [tableContent]);
 
   const formatMoney = (number) => {
     if (number >= 1_000_000) {
@@ -41,64 +50,64 @@ export default function DelayedQuotesPage() {
   return (
     <>
       <div className="overflow-x-auto  bg-white drop-shadow-md  dark:bg-gray-800">
-        <div className="w-full flex items-center justify-between py-2 bg-gray-100 px-4">
+        <div className="w-full flex items-center justify-between py-2 dark:bg-gray-700 bg-gray-100 px-4">
           <h1 className=" text-xl font-bold">DELAYED QUOTES</h1>
           <h1>SGX</h1>
         </div>
+        <div className="w-full flex">
+          <div
+            onClick={() => changeTable(0)}
+            className={`border-r-2 px-8 cursor-pointer text-right w-full border-b-2 ${
+              tableContent == 0
+                ? "border-blue-600 text-blue-600"
+                : " border-slate-200"
+            }`}
+          >
+            Top <br /> Volume
+          </div>
+          <div
+            onClick={() => changeTable(1)}
+            className={`border-r-2 px-8 cursor-pointer text-right w-full border-b-2 ${
+              tableContent == 1
+                ? "border-blue-600 text-blue-600"
+                : " border-slate-200"
+            }`}
+          >
+            Top <br /> Gainers
+          </div>
+          <div
+            onClick={() => changeTable(2)}
+            className={`border-r-2 px-8 cursor-pointer text-right w-full border-b-2 ${
+              tableContent == 2
+                ? "border-blue-600 text-blue-600"
+                : " border-slate-200"
+            }`}
+          >
+            Top <br /> Losers
+          </div>
+          <div
+            onClick={() => changeTable(3)}
+            className={`border-r-2 px-8 cursor-pointer text-right w-full border-b-2 ${
+              tableContent == 3
+                ? "border-blue-600 text-blue-600"
+                : " border-slate-200"
+            }`}
+          >
+            Top % <br /> Gainer
+          </div>
+          <div
+            onClick={() => changeTable(4)}
+            className={` px-8 text-right cursor-pointer w-full border-b-2 ${
+              tableContent == 4
+                ? "border-blue-600 text-blue-600"
+                : " border-slate-200"
+            }`}
+          >
+            Top % <br /> Loser
+          </div>
+        </div>
         <table className="min-w-full ">
           <thead>
-            <tr>
-              <th
-                onClick={() => setTableContent(0)}
-                className={`border-r-2 px-8 text-right border-b-2 ${
-                  tableContent == 0
-                    ? "border-blue-600 text-blue-600"
-                    : " border-slate-200"
-                }`}
-              >
-                Top <br /> Volume
-              </th>
-              <th
-                onClick={() => setTableContent(1)}
-                className={`border-r-2 px-8 text-right border-b-2 ${
-                  tableContent == 1
-                    ? "border-blue-600 text-blue-600"
-                    : " border-slate-200"
-                }`}
-              >
-                Top <br /> Gainers
-              </th>
-              <th
-                onClick={() => setTableContent(2)}
-                className={`border-r-2 px-8 text-right border-b-2 ${
-                  tableContent == 2
-                    ? "border-blue-600 text-blue-600"
-                    : " border-slate-200"
-                }`}
-              >
-                Top <br /> Losers
-              </th>
-              <th
-                onClick={() => setTableContent(3)}
-                className={`border-r-2 px-8 text-right border-b-2 ${
-                  tableContent == 3
-                    ? "border-blue-600 text-blue-600"
-                    : " border-slate-200"
-                }`}
-              >
-                Top % <br /> Gainer
-              </th>
-              <th
-                onClick={() => setTableContent(4)}
-                className={` px-8 text-right border-b-2 ${
-                  tableContent == 4
-                    ? "border-blue-600 text-blue-600"
-                    : " border-slate-200"
-                }`}
-              >
-                Top % <br /> Loser
-              </th>
-            </tr>
             <tr className=" text-slate-500 border-b-[1px] border-gray-600">
               <th className="px-4 pt-2 text-left">
                 <div className=" font-normal">Stock</div>
