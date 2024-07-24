@@ -1,7 +1,10 @@
 import { useState } from "react";
+import Skeleton from "../Components/Skeleton";
 
 export default function DelayedQuotesPage() {
   const [tableContent, setTableContent] = useState(0);
+
+  const [isLoading, setIsLoading] = useState(true);
   return (
     <>
       <div className="overflow-x-auto  bg-white drop-shadow-md  dark:bg-gray-800">
@@ -87,28 +90,32 @@ export default function DelayedQuotesPage() {
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-100 dark:hover:bg-gray-700 border-b-2 ">
-              <td className=" px-4 py-2 text-left">
-                <strong>Sembocomap</strong>
-                <div>s51</div>
-              </td>
-              <td className=" px-4 py-2 text-right">
-                <div>0.111</div>
-                <div>78.48M</div>
-              </td>
-              <td className=" px-4 py-2 text-right">
-                <div>-0.020</div>
-                <div>-15.3%</div>
-              </td>
-              <td className=" px-4 py-2 text-right">
-                <div>0.11</div>
-                <div>9.11M</div>
-              </td>
-              <td className=" px-4 py-2 text-right">
-                <div>0.11</div>
-                <div>2.71M</div>
-              </td>
-            </tr>
+            {isLoading ? (
+              <Skeleton />
+            ) : (
+              <tr className="hover:bg-gray-100 dark:hover:bg-gray-700 border-b-2 ">
+                <td className=" px-4 py-2 text-left">
+                  <strong>Sembocomap</strong>
+                  <div>s51</div>
+                </td>
+                <td className=" px-4 py-2 text-right">
+                  <div>0.111</div>
+                  <div>78.48M</div>
+                </td>
+                <td className=" px-4 py-2 text-right">
+                  <div>-0.020</div>
+                  <div>-15.3%</div>
+                </td>
+                <td className=" px-4 py-2 text-right">
+                  <div>0.11</div>
+                  <div>9.11M</div>
+                </td>
+                <td className=" px-4 py-2 text-right">
+                  <div>0.11</div>
+                  <div>2.71M</div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
