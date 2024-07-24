@@ -1,10 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Skeleton from "../Components/Skeleton";
+import axios from "axios";
 
 export default function DelayedQuotesPage() {
   const [tableContent, setTableContent] = useState(0);
-
+  const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        "https://livefeed3.chartnexus.com/Dummy/quotes?market_id=0&list=0"
+      );
+      console.log(response.data);
+      setData(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.log("Error fetching data: ", error);
+      setIsLoading(false);
+    }
+  };
+
+  const formatMoney = (number) => {
+    if (number >= 1_000_000) {
+      return `${(number / 1_000_000).toFixed(1)}M`;
+    } else if (number >= 1_000) {
+      return `${(number / 1_000).toFixed(1)}K`;
+    } else {
+      return number.toString();
+    }
+  };
+
   return (
     <>
       <div className="overflow-x-auto  bg-white drop-shadow-md  dark:bg-gray-800">
@@ -93,28 +126,42 @@ export default function DelayedQuotesPage() {
             {isLoading ? (
               <Skeleton />
             ) : (
-              <tr className="hover:bg-gray-100 dark:hover:bg-gray-700 border-b-2 ">
-                <td className=" px-4 py-2 text-left">
-                  <strong>Sembocomap</strong>
-                  <div>s51</div>
-                </td>
-                <td className=" px-4 py-2 text-right">
-                  <div>0.111</div>
-                  <div>78.48M</div>
-                </td>
-                <td className=" px-4 py-2 text-right">
-                  <div>-0.020</div>
-                  <div>-15.3%</div>
-                </td>
-                <td className=" px-4 py-2 text-right">
-                  <div>0.11</div>
-                  <div>9.11M</div>
-                </td>
-                <td className=" px-4 py-2 text-right">
-                  <div>0.11</div>
-                  <div>2.71M</div>
-                </td>
-              </tr>
+              data.map((item, index) => (
+                <tr
+                  key={index}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700 border-b-2 "
+                >
+                  <td className=" px-4 py-2 text-left">
+                    <strong>{item.name}</strong>
+                    <div>{item.stockcode}</div>
+                  </td>
+                  <td className=" px-4 py-2 text-right">
+                    <div>{item.last.toFixed(3)}</div>
+                    <div>{formatMoney(item.volume)}</div>
+                  </td>
+                  <td className=" px-4 py-2 text-right">
+                    <div
+                      className={
+                        item.last - item.previous < 0
+                          ? "text-red-500"
+                          : "text-green-500"
+                      }
+                    >
+                      {(item.last - item.previous).toFixed(3)}
+                    </div>
+
+                    <div>-15.3%</div>
+                  </td>
+                  <td className=" px-4 py-2 text-right">
+                    <div>{item.buy_price.toFixed(3)}</div>
+                    <div>{formatMoney(item.buy_volume)}</div>
+                  </td>
+                  <td className=" px-4 py-2 text-right">
+                    <div>{item.sell_price.toFixed(3)}</div>
+                    <div>{formatMoney(item.sell_volume)}</div>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
