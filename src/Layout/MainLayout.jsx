@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { Children, useState } from "react";
 
-export default function MainLayout() {
+export default function MainLayout({ children }) {
   const [darkMode, setDarkMode] = useState(false);
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -11,9 +11,10 @@ export default function MainLayout() {
             onClick={() => setDarkMode(!darkMode)}
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
-            Toggle Dark Mode
+            Dark Mode
           </button>
         </nav>
+        <main className=" mx-auto container p-4">{children}</main>
       </div>
     </div>
   );
