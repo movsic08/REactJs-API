@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Skeleton from "../Components/Skeleton";
 import axios from "axios";
 
@@ -7,10 +7,13 @@ export default function DelayedQuotesPage() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const prevDataRef = useRef([]);
+
   const changeTable = (num) => {
     setIsLoading(true);
     setTableContent(num);
   };
+
   useEffect(() => {
     // Function to fetch data
     const fetchData = async () => {
@@ -21,7 +24,26 @@ export default function DelayedQuotesPage() {
         console.log(
           `      https://livefeed3.chartnexus.com/Dummy/quotes?market_id=0&list=${tableContent}`
         );
-        console.log(response.data);
+
+        const newData = response.data;
+        const hasChanged = newData.some((item, index) => {
+          const prevItem = prevDataRef.current[index];
+          return (
+            prevItem &&
+            (item.last !== prevItem.last ||
+              item.volume !== prevItem.volume ||
+              item.buy_price !== prevItem.buy_price ||
+              item.sell_price !== prevItem.sell_price)
+          );
+        });
+        if (hasChanged) {
+          setData(newData);
+        } else {
+          setData(newData);
+        }
+
+        prevDataRef.current = newData;
+        console.log(response.data ? "fetched success" : "not fetched");
         setData(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -45,6 +67,10 @@ export default function DelayedQuotesPage() {
     } else {
       return number.toString();
     }
+  };
+
+  const percentageChange = (last, prev) => {
+    return (100 * (last - prev)) / prev;
   };
 
   return (
@@ -141,14 +167,21 @@ export default function DelayedQuotesPage() {
                   className="hover:bg-gray-100 dark:hover:bg-gray-700 border-b-2 "
                 >
                   <td className=" px-4 py-2 text-left">
-                    <strong>{item.name}</strong>
+                    <strong className="flash">{item.name}</strong>
                     <div>{item.stockcode}</div>
                   </td>
-                  <td className=" px-4 py-2 text-right">
+                  <td
+                    className={` px-4 py-2 text-right ${
+                      item.last !== prevDataRef.current[index]?.last ||
+                      item.volume !== prevDataRef.current[index]
+                        ? "flash"
+                        : ""
+                    }`}
+                  >
                     <div>{item.last.toFixed(3)}</div>
                     <div>{formatMoney(item.volume)}</div>
                   </td>
-                  <td className=" px-4 py-2 text-right">
+                  <td className=" px-4 py-2 text-right flash">
                     <div
                       className={
                         item.last - item.previous < 0
@@ -159,7 +192,15 @@ export default function DelayedQuotesPage() {
                       {(item.last - item.previous).toFixed(3)}
                     </div>
 
-                    <div>-15.3%</div>
+                    <div
+                      className={
+                        percentageChange(item.last, item.previous) < 0
+                          ? "text-red-500"
+                          : "text-green-500"
+                      }
+                    >
+                      {percentageChange(item.last, item.previous).toFixed(1)}%
+                    </div>
                   </td>
                   <td className=" px-4 py-2 text-right">
                     <div>{item.buy_price.toFixed(3)}</div>
