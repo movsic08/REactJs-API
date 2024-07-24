@@ -4,7 +4,7 @@ export default function MainLayout({ children }) {
   const [darkMode, setDarkMode] = useState(false);
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <nav className="flex justify-between items-center p-5 bg-white dark:bg-gray-800 shadow-md">
           <div className="text-xl font-bold">Delayed Quotes</div>
           <button
