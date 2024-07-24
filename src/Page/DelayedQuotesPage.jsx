@@ -4,6 +4,7 @@ import axios from "axios";
 
 export default function DelayedQuotesPage() {
   const [tableContent, setTableContent] = useState(0);
+  const [marketId, setMarketId] = useState(0);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -13,16 +14,19 @@ export default function DelayedQuotesPage() {
     setIsLoading(true);
     setTableContent(num);
   };
+  const changeMarket = (num) => {
+    setIsLoading(true);
+    setMarketId(num);
+  };
 
   useEffect(() => {
-    // Function to fetch data
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `https://livefeed3.chartnexus.com/Dummy/quotes?market_id=0&list=${tableContent}`
+          `https://livefeed3.chartnexus.com/Dummy/quotes?market_id=${marketId}&list=${tableContent}`
         );
         console.log(
-          `      https://livefeed3.chartnexus.com/Dummy/quotes?market_id=0&list=${tableContent}`
+          `      https://livefeed3.chartnexus.com/Dummy/quotes?market_id=${marketId}&list=${tableContent}`
         );
 
         const newData = response.data;
@@ -57,7 +61,7 @@ export default function DelayedQuotesPage() {
 
     // Clear interval on component unmount
     return () => clearInterval(interval);
-  }, [tableContent]);
+  }, [tableContent, marketId]);
 
   const formatMoney = (number) => {
     if (number >= 1_000_000) {
@@ -78,7 +82,18 @@ export default function DelayedQuotesPage() {
       <div className="overflow-x-auto  bg-white drop-shadow-md  dark:bg-gray-800">
         <div className="w-full flex items-center justify-between py-2 dark:bg-gray-700 bg-gray-100 px-4">
           <h1 className=" text-xl font-bold">DELAYED QUOTES</h1>
-          <h1>SGX</h1>
+          <div>
+            <select
+              onChange={(e) => changeMarket(e.target.value)}
+              className="bg-gray-50 border w-fit border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            >
+              <option value="0" defaultValue>
+                SGX
+              </option>
+              <option value="2">Bursa</option>
+              <option value="3">Nasdaq</option>
+            </select>
+          </div>
         </div>
         <div className="w-full flex">
           <div
@@ -135,23 +150,23 @@ export default function DelayedQuotesPage() {
         <table className="min-w-full ">
           <thead>
             <tr className=" text-slate-500 border-b-[1px] border-gray-600">
-              <th className="px-4 pt-2 text-left">
+              <th className="px-4 pt-2 dark:text-slate-300 text-left">
                 <div className=" font-normal">Stock</div>
                 <div className=" font-normal"> Code</div>
               </th>
-              <th className="px-4 pt-2 text-right">
+              <th className="px-4 pt-2 dark:text-slate-300 text-right">
                 <div className=" font-normal">Last</div>
                 <div className="font-normal"> Vol</div>
               </th>
-              <th className="px-4 pt-2 text-right">
+              <th className="px-4 pt-2 dark:text-slate-300 text-right">
                 <div className=" font-normal"> +/-</div>
                 <div className="font-normal"> %Chng</div>
               </th>
-              <th className="px-4 pt-2 text-right">
+              <th className="px-4 pt-2 dark:text-slate-300 text-right">
                 <div className=" font-normal"> Buy</div>
                 <div className="font-normal"> Buy Vol</div>
               </th>
-              <th className="px-4 pt-2 text-right">
+              <th className="px-4 pt-2 dark:text-slate-300 text-right">
                 <div className=" font-normal"> Sell</div>
                 <div className="font-normal"> Sell Vol</div>
               </th>
