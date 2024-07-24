@@ -6,17 +6,22 @@ export default function DelayedQuotesPage() {
   const [tableContent, setTableContent] = useState(0);
   const [marketId, setMarketId] = useState(0);
   const [data, setData] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true);
 
   const prevDataRef = useRef([]);
 
   const changeTable = (num) => {
     setIsLoading(true);
+    setData([]);
+    prevDataRef.current = [];
     setTableContent(num);
   };
 
   const changeMarket = (num) => {
     setIsLoading(true);
+    setData([]);
+    prevDataRef.current = [];
     setMarketId(num);
   };
 
@@ -28,23 +33,19 @@ export default function DelayedQuotesPage() {
         );
         const newData = response.data;
 
-        // Determine if there are changes compared to the previous data
+        // Determine changes for each cell
         const updatedData = newData.map((item, index) => {
-          const prevItem = prevDataRef.current[index];
+          const prevItem = prevDataRef.current[index] || {};
           return {
             ...item,
-            hasChanged: prevItem
-              ? item.last !== prevItem.last ||
-                item.volume !== prevItem.volume ||
-                item.buy_price !== prevItem.buy_price ||
-                item.sell_price !== prevItem.sell_price
-              : true,
+            hasChanged: {
+              last: item.last !== prevItem.last,
+              volume: item.volume !== prevItem.volume,
+              buy_price: item.buy_price !== prevItem.buy_price,
+              sell_price: item.sell_price !== prevItem.sell_price,
+            },
           };
         });
-        console.log(
-          ` https://livefeed3.chartnexus.com/Dummy/quotes?market_id=${marketId}&list=${tableContent}`
-        );
-        console.log(response.data ? "fetched success" : "not fetched");
 
         setData(updatedData);
         prevDataRef.current = newData;
@@ -93,7 +94,7 @@ export default function DelayedQuotesPage() {
             </select>
           </div>
         </div>
-        <div className="w-full flex">
+        <div className="w-full flex mt-2">
           <div
             onClick={() => changeTable(0)}
             className={`border-r-2 px-8 cursor-pointer text-right w-full border-b-2 ${
@@ -180,18 +181,14 @@ export default function DelayedQuotesPage() {
                   className="hover:bg-gray-100 dark:hover:bg-gray-700 border-b-2"
                 >
                   <td className="px-4 py-2 text-left">
-                    <strong
-                      className={`${
-                        item.hasChanged ? "flash" : ""
-                      } transition-colors duration-500`}
-                    >
-                      {item.name}
-                    </strong>
+                    <strong>{item.name}</strong>
                     <div>{item.stockcode}</div>
                   </td>
                   <td
                     className={`px-4 py-2 text-right ${
-                      item.hasChanged ? "flash" : ""
+                      item.hasChanged.last || item.hasChanged.volume
+                        ? "flash"
+                        : ""
                     } transition-colors duration-500`}
                   >
                     <div>{item.last.toFixed(3)}</div>
@@ -199,7 +196,7 @@ export default function DelayedQuotesPage() {
                   </td>
                   <td
                     className={`px-4 py-2 text-right ${
-                      item.hasChanged ? "flash" : ""
+                      item.hasChanged.last ? "flash" : ""
                     } transition-colors duration-500`}
                   >
                     <div
@@ -221,11 +218,23 @@ export default function DelayedQuotesPage() {
                       {percentageChange(item.last, item.previous).toFixed(1)}%
                     </div>
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td
+                    className={`px-4 py-2 text-right ${
+                      item.hasChanged.buy_price || item.hasChanged.buy_volume
+                        ? "flash"
+                        : ""
+                    } transition-colors duration-500`}
+                  >
                     <div>{item.buy_price.toFixed(3)}</div>
                     <div>{formatMoney(item.buy_volume)}</div>
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td
+                    className={`px-4 py-2 text-right ${
+                      item.hasChanged.sell_price || item.hasChanged.sell_volume
+                        ? "flash"
+                        : ""
+                    } transition-colors duration-500`}
+                  >
                     <div>{item.sell_price.toFixed(3)}</div>
                     <div>{formatMoney(item.sell_volume)}</div>
                   </td>
